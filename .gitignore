@@ -1,0 +1,16 @@
+# Credenciales y configuración privada
+.env
+.env.*
+!.env.example
+*.secret
+secrets.*
+
+# Sistema, editor y generados
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+build/
+dist/
+target/
