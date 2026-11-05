@@ -1,56 +1,138 @@
-# FILEY — Sistema administrativo de venta de stands
+# FILEY — Backend administrativo de stands (Java puro)
 
-## Primera entrega: análisis y diseño
+Proyecto de programación orientada a objetos para administrar los stands de la Feria Internacional de la Lectura Yucatán (FILEY). Implementación sin Spring, sin Maven y sin dependencias externas. Diseñado a partir de las **instrucciones originales** y los ocho diagramas Mermaid adjuntos.
 
-Documentación inicial del backend para administrar stands de la Feria Internacional de la Lectura Yucatán (FILEY). Esta entrega contiene los requisitos y el diseño preliminar; **todavía no incluye una aplicación ejecutable**.
+## Inicio rápido en Windows (PowerShell)
+
+**Requisito:** JDK 17 o superior (`java -version` y `javac -version`).
+
+1. Extrae el ZIP en una carpeta normal (no ejecutes directamente desde el ZIP).
+2. Abre PowerShell en la carpeta **FILEY_Java_Backend**.
+3. Ejecuta el JAR ya compilado:
+
+```powershell
+java -jar .\FILEY.jar
+```
+
+Para ver el escenario automático, sin ingresar datos:
+
+```powershell
+java -jar .\FILEY.jar --demo
+```
+
+Si cambias el código fuente y quieres volver a compilarlo:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\ejecutar.ps1
+```
+
+O manualmente:
+
+```powershell
+New-Item -ItemType Directory -Force out | Out-Null
+$archivos = Get-ChildItem -Path .\src -Recurse -Filter *.java | ForEach-Object { $_.FullName }
+javac -encoding UTF-8 --release 17 -d out $archivos
+java -cp out filey.Main
+```
+
+Si aparecen tildes incorrectas en PowerShell clásico, ejecuta `chcp 65001` antes del programa y usa una terminal UTF-8.
+
+### En Linux / macOS
+
+```bash
+bash ejecutar.sh
+# O, con JDK 17+: java -jar FILEY.jar --demo
+```
+
+## ¿Qué hace?
+
+- Da de alta stands con ID, m², costo/m² y precio total.
+- Administra editoriales con ID, nombre y correo.
+- Gestiona estados del stand: `DISPONIBLE`, `RESERVADO`, `OCUPADO`, `BLOQUEADO`.
+- Registra reservas con vencimiento configurable y precio congelado al reservar.
+- Impide reservar un stand ya apartado o bloqueado, incluso con llamadas concurrentes dentro de la misma JVM.
+- Registra abonos; al acumular **15 %** del precio base (configurable), pasa el stand a `OCUPADO`.
+- Aplica descuento por liquidación dentro del plazo de pronto pago, con porcentaje configurable.
+- Bloquea pagos fuera del plazo total, de reservas canceladas/vencidas y sobrepagos.
+- Permite bloquear y liberar stands, y cancelar reservas sin pagos que aún no estén ocupadas.
+- Revisa vencimientos de reserva y libera stands sin el pago mínimo.
+- Genera avisos de vencimiento de reserva, pronto pago y pago total, con Observer, historial, deduplicación y reintentos.
+- Permite configurar fechas, porcentaje mínimo, porcentaje de descuento, zona horaria y anticipación de avisos.
+- Muestra resúmenes de stands, reservas, cobros e historial.
+- Incluye autenticación **demostrativa**, con contraseña derivada mediante PBKDF2 y sesión en memoria.
+
+## Datos que aparecen al abrirlo
+
+Se precargan **dos stands** y **una editorial de prueba** para facilitar la demostración:
+
+| Registro | Valor |
+| --- | --- |
+| Stand #1 | 10 m² × $2,000 = $20,000 |
+| Stand #2 | 12 m² × $1,500 = $18,000 |
+| Editorial #1 | Editorial Demo (`editorial@ejemplo.test`) |
+| Usuario de prueba | `admin` |
+| Contraseña de prueba | `Filey2026!` |
+
+La consola inicia con la sesión de prueba abierta para simplificar la exposición. **Estas credenciales son públicas y no son aptas para producción.** Puedes usar los servicios Java directamente para autenticarte y aplicar permisos mediante tokens.
+
+La configuración inicial se genera a partir del día en que se ejecuta el programa: fecha límite para reservar = hoy + 30 días, descuento = hoy + 14 días, pago total = hoy + 60 días, duración de reserva = 72 horas, umbral = 15 %, **descuento de demostración = 5 %**, anticipo de aviso = 24 horas y zona `America/Merida`.
+
+## Estructura
+
+```text
+FILEY_Java_Backend/
+├── README.md
+├── DISEÑO_Y_LIMITACIONES.md
+├── GUIA_DE_PRESENTACION.md
+├── VERIFICACION.md
+├── INSTRUCCIONES_ORIGINALES.docx
+├── diagramas/               # 8 diagramas Mermaid originales, conservados
+├── src/filey/Main.java      # Menú de consola y demo automática
+├── src/filey/SistemaFiley.java
+├── src/filey/datos/         # Entidades, enums y repositorios
+│   ├── repositorios/        # Contratos (interfaces)
+│   └── memoria/             # Persistencia temporal en memoria
+├── src/filey/negocio/       # Servicios, autorizaciones, reglas de transición y eventos
+│   ├── eventos/
+│   └── excepciones/
+├── src/filey/notificaciones/ # Observer, bus de eventos, correo simulado, reintentos
+├── ejecutar.ps1
+├── ejecutar.sh
+└── FILEY.jar                # Aplicación ejecutable ya compilada
+```
+
+## Ciclo de vida de un stand
+
+```text
+DISPONIBLE ──reservar──> RESERVADO ──pago acumulado >= 15 %──> OCUPADO
+    │                        │
+    └──bloquear──> BLOQUEADO └──cancelación o vencimiento sin mínimo──> DISPONIBLE
+                      │
+                      └──liberar──> DISPONIBLE
+```
+
+Las transiciones no previstas son rechazadas por `GestorEstados`. **No** hay transición de salida desde `OCUPADO`, porque el enunciado no define devolución o cierre.
+
+## Notificaciones
+
+`VencimientoService.procesarAvisos()` y `procesarReservasVencidas()` se invocan desde el menú (opción 11) o desde otro programador. Son los métodos pedidos para producir avisos: **no hay un proceso automático ejecutándose permanentemente**.
+
+`CanalCorreo` **SIMULA** el envío: imprime en pantalla el destinatario y el contenido. No envía mensajes reales ni requiere claves SMTP. Para conexión con correo real habría que sustituir esta implementación del puerto `CanalNotificacion`.
+
+`RegistroNotificacion` conserva resultados, número de intentos y claves para no duplicar recordatorios. `ReintentoNotificacion` reprocesa los fallidos (menú 15). `ObservadorAuditoria` deja una segunda traza interna por evento (por eso aparecen dos registros, uno `AUDITORIA` y otro `CORREO`).
+
+## Repositorio Git
+
+El entregable solicitado dice «Registrar en un repo». Para subirlo a uno nuevo desde el directorio del proyecto:
+
+```powershell
+git init
+git add .
+git commit -m "Implementar backend Java FILEY con reservas, pagos y notificaciones"
+```
+
+Para subirlo a un repositorio que ya exista, **no** vuelvas a hacer `git init` dentro de él: copia la carpeta al repositorio, crea una rama y agrega los archivos normalmente. No se incluye conexión a GitHub ni se ha publicado automáticamente.
 
 ## Alcance
 
-El sistema contempla registro y consulta de stands, cuatro estados (`Disponible`, `Reservado`, `Ocupado`, `Bloqueado`), reservas y abonos, descuento por pronto pago, configuración de fechas, vencimientos, notificaciones y trazabilidad. Incluye dos funciones opcionales de transferencia de stands y reservas.
-
-## Requisitos
-
-- [Requisitos funcionales (RF1–RF28)](requisitos/01-funcionales.md)
-- [Requisitos no funcionales (RNF1–RNF20)](requisitos/02-no-funcionales.md)
-
-## Diagramas
-
-| Diagrama | Archivo |
-|---|---|
-| Clases: paquete `datos` | [01-clases-datos](diagramas/01-clases-datos.md) |
-| Clases: paquete `negocio` | [02-clases-negocio](diagramas/02-clases-negocio.md) |
-| Clases: paquete `notificaciones` | [03-clases-notificaciones](diagramas/03-clases-notificaciones.md) |
-| Arquitectura por paquetes | [04-diagrama-paquetes](diagramas/04-diagrama-paquetes.md) |
-| Máquina de estados | [05-diagrama-estados](diagramas/05-diagrama-estados.md) |
-| Casos de uso | [06-casos-de-uso](diagramas/06-casos-de-uso.md) |
-| Secuencia: reserva y pago | [07-secuencia-reserva-pago](diagramas/07-secuencia-reserva-pago.md) |
-| Actividad: vencimientos | [08-actividad-vencimientos](diagramas/08-actividad-vencimientos.md) |
-
-Los diagramas usan **Mermaid**, que GitHub puede mostrar al abrir estos archivos Markdown.
-
-## Arquitectura propuesta
-
-- **`datos`:** entidades, enumeraciones y contratos de repositorio.
-- **`negocio`:** reglas de reservas, pagos, precios, estados y vencimientos.
-- **`notificaciones`:** observadores, canales de envío y reintentos.
-
-Decisiones de diseño: montos con `BigDecimal`, umbral mínimo de pago del 15 % configurable, control de concurrencia para evitar reservas dobles, zona horaria `America/Merida`, historial de solo anexado y credenciales fuera del código.
-
-## Instalación, configuración y ejecución
-
-Esta **primera entrega contiene documentación y diagramas**, no un backend ejecutable. No hay dependencias que instalar. Para revisarla, entra a GitHub y abre los documentos vinculados arriba. Las instrucciones de instalación, configuración y ejecución del software se agregarán cuando el backend esté implementado.
-
-## Avance
-
-- [x] Requisitos funcionales
-- [x] Requisitos no funcionales
-- [x] Diagramas de clases por paquete
-- [x] Diagramas de arquitectura y procesos
-- [ ] Implementación de clases
-- [ ] Pruebas automatizadas
-- [ ] Despliegue
-
-## Aspectos a definir para implementar
-
-- Precisar qué monto se debe pagar para recibir el descuento por pronto pago.
-- Precisar políticas de reembolsos y cancelaciones después de haber pagado, que no están definidas todavía.
+No se implementaron las funcionalidades opcionales de transferencia de reservas y asignación directa de stands bloqueados (`RF24/RF25` de los diagramas). Tampoco se implementaron pruebas unitarias automáticas, base de datos, interfaz web, SMTP real o infraestructura transaccional. Consulte `DISEÑO_Y_LIMITACIONES.md` antes de usar este código fuera de una demostración académica.
