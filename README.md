@@ -2,6 +2,11 @@
 
 Proyecto de programación orientada a objetos para administrar los stands de la Feria Internacional de la Lectura Yucatán (FILEY). Implementación sin Spring, sin Maven y sin dependencias externas. Diseñado a partir de las **instrucciones originales** y los ocho diagramas Mermaid adjuntos.
 
+## Video explicativo del proyecto FILEY
+
+En el siguiente video se explica la estructura del proyecto, las abstracciones utilizadas, la organización de las clases y la implementación del patrón de diseño Observer.
+
+[Ver video explicativo de FILEY](https://youtu.be/VlUiug7OEZs)
 ## Inicio rápido en Windows (PowerShell)
 
 **Requisito:** JDK 17 o superior (`java -version` y `javac -version`).
