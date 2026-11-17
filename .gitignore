@@ -1,6 +1,8 @@
-/out/
-*.class
-fuentes.txt
-.DS_Store
-.idea/
-.vscode/
+# Archivos generados
+**/target/
+**/out/
+**/*.class
+**/*.db
+**/*.db-journal
+**/*.db-wal
+**/*.db-shm
