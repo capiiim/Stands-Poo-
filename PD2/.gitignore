@@ -1,0 +1,6 @@
+/out/
+*.class
+fuentes.txt
+.DS_Store
+.idea/
+.vscode/
