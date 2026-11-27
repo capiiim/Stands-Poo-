@@ -1,6 +1,6 @@
-# FILEY — Entregas PD2 y PD4
+# FILEY — Entregas PD2, PD4 y PD5
 
-Repositorio organizado por entregas, sin cambiar el contenido original del proyecto.
+Repositorio organizado por entregas, conservando las versiones anteriores.
 
 ## [PD2 — Sistema administrativo de stands](PD2/README.md)
 
@@ -24,8 +24,17 @@ cd PD4
 mvn compile exec:java
 ```
 
+## [PD5 — MVC + BD (CRUD)](PD5/README.md)
+
+Continuación de PD4 con operaciones CRUD para Stand, Editorial y Reservacion, separación de conexión y DAO, excepciones y diagramas.
+
+**Ejecutar PD5** desde su carpeta (requiere JDK 17 y Maven):
+
+```bash
+cd PD5
+mvn compile exec:java
+```
+
 ## Entrega
 
-Para la PD4, entregar la URL de este repositorio. Falta grabar y publicar el video de máximo cinco minutos; agregar su URL a `PD4/README.md` (sección video).
-
-> Nota: Los archivos fuente y documentación de PD2 se conservaron sin modificaciones. PD4 es una implementación separada para cumplir la consigna MVC + JDBC.
+La documentación, diagramas y código de PD5 se encuentran en la carpeta `PD5`. El enlace al video de máximo cinco minutos se agrega en `PD5/README.md`.
