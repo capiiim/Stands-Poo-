@@ -2,6 +2,10 @@
 
 Continuación de PD4. Se mantienen las entidades Stand, Editorial y Reservacion, el patrón MVC y la conexión SQLite mediante JDBC. Ahora cada entidad tiene operaciones de alta, lectura, modificación y baja, además de manejo de excepciones.
 
+### Enlace al video
+
+[Ver video explicativo de la PD5](https://drive.google.com/drive/folders/1Np_BKkEoZPuEMbttyBomKiXqKNAZciyP?usp=drive_link)
+
 ## Requisitos y ejecución
 
 Java JDK 17 o superior y Maven 3.8 o superior. La primera ejecución requiere Internet para descargar las dependencias.
@@ -20,9 +24,3 @@ El programa crea `filey_pd5.db`, comprueba la conexión y muestra las operacione
 - [Diagrama de clases](diagramas/clases.md)
 - [Diagrama entidad-relación](diagramas/entidad-relacion.md)
 - [Esquema de la base de datos](bd/esquema.sql)
-
-## Video
-
-Pendiente de grabar y publicar: reemplazar esta línea por el enlace al video de PD5 (máximo 5 minutos, con acceso para el profesor).
-
-[Guion para el video](GUIA_DE_PRESENTACION.md).
