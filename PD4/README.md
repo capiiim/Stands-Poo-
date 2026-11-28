@@ -33,9 +33,6 @@ El programa crea `filey_pd4.db` automáticamente si no existe, crea las tablas y
 - [Diagrama de clases](diagramas/clases.md)
 - [Diagrama entidad-relación](diagramas/entidad-relacion.md)
 
-## Evidencia y video
-Grabar una ejecución de `mvn compile exec:java` y explicar las capas y las tres lecturas. Duración máxima: 5 minutos.
-
 
 ## Alcance
 Esta PD4 implementa la **conexión y lectura JDBC** de las tres entidades pedidas, con una vista de consola. No sustituye los servicios de reservas, pagos y notificaciones de la entrega anterior ni afirma integrarlos con SQLite. No incluye escritura de reservas mediante JDBC ni interfaz gráfica porque no se solicitaron para esta actividad.
