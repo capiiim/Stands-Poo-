@@ -1,4 +1,4 @@
-# FILEY — Entregas PD2, PD4 y PD5
+# FILEY — Entregas PD2, PD4, PD5 y PD6
 
 Repositorio organizado por entregas, conservando las versiones anteriores.
 
@@ -35,6 +35,29 @@ cd PD5
 mvn compile exec:java
 ```
 
+## [PD6 — Administración de pagos](PD6/README.md)
+
+Continuación de PD5 que incorpora la entidad Pago para administrar los abonos de las reservaciones de cada editorial.
+
+Incluye:
+
+- Operaciones CRUD para Stand, Editorial, Reservacion y Pago.
+- Registro de pagos parciales por reservación.
+- Consulta de pagos realizados en un mes específico.
+- Consulta de pagos por reservación y editorial.
+- Validación de montos, saldo pendiente y fechas límite.
+- Patrón MVC, JDBC, DAO y manejo de excepciones.
+- Diagramas de clases y entidad-relación actualizados.
+
+**Ejecutar PD6** desde su carpeta (requiere JDK 17 y Maven):
+
+```bash
+cd PD6
+mvn compile exec:java
+```
+
 ## Entrega
 
-La documentación, diagramas y código de PD5 se encuentran en la carpeta `PD5`. El enlace al video de máximo cinco minutos se agrega en `PD5/README.md`.
+La documentación, diagramas y código de cada entrega se encuentran en sus respectivas carpetas.
+
+El enlace al video de máximo cinco minutos de PD6 se encuentra en `PD6/README.md`.
